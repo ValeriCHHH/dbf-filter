@@ -76,7 +76,7 @@ jobs:
 
       - name: Сборка в автономный .exe с помощью PyInstaller
         run: |
-          pyinstaller --onefile --name dbf-filter src/dbf_filter.py
+          pyinstaller --onefile --name dbf-filter src/dbf_to_csv.py
 
       - name: Загрузка .exe в артефакты
         uses: actions/upload-artifact@v5
