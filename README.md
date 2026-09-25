@@ -46,29 +46,33 @@ dbf-filter -i <ВХОДНОЙФАЙЛ> -o <ВЫХОДНОЙФАЙЛ> [ДОП_П�
 ## 💡 Примеры команд
  **1. Поиск по полю адреса:**
 Найти все строки, у которых в колонке `ADRES` встречаются слова «мурманск» или «мурманский район»:
-
+```bash
 dbf-filter -i DATA.DBF -o result.csv -f ADRES -q мурманск “мурманский район” **2. Поиск с сортировкой результатов:**
+```
 Найти совпадения по адресу и отсортировать итоговый файл по колонке `NAME`:
-
-dbf-filter -i DATA.DBF -o sorted_result.csv -f ADRES -q уфа -s NAME 
- **3. Полная конвертация DBF в CSV (без фильтров):**
-
-dbf-filter -i data.dbf -o full_export.csv 
+```bash
+dbf-filter -i DATA.DBF -o sorted_result.csv -f ADRES -q уфа -s NAME
+```
+ **3. Полная конвертация DBF в CSV (без фильтров):**
+```bash
+dbf-filter -i data.dbf -o full_export.csv
+```
  **4. Вызов справки:**
-
-dbf-filter –help 
+```bash
+dbf-filter –help
+```
  ---
 ## 🛠️ Запуск из исходного кода
  Если вы хотите запустить проект непосредственно через Python:
  1. Клонируйте репозиторий:
-
-git clone git@github.com:ValeriCHHH/dbf-filter.git cd dbf-filter 
-  2. Установите зависимости:
-
-pip install -r requirements.txt 
+```bash
+git clone git@github.com:ValeriCHHH/dbf-filter.git cd dbf-filter
+```
+ 2. Установите зависимости:
+```bash
+pip install -r requirements.txt
+```
   3. Запустите скрипт:
-
+```bash
 python3 src/dbf_filter.py -i input.dbf -o output.csv -f ADRES -q саранск 
 ``` 
- 📄 Лицензия 
-Проект распространяется под свободным лицензионным соглашением GNU General Public License v3.0
