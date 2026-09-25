@@ -2,7 +2,7 @@
 [![Build and Release](https://github.com/ValeriCHHH/dbf-filter/actions/workflows/release.yml/badge.svg)](https://github.com/ValeriCHHH/dbf-filter/actions/workflows/release.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/ValeriCHHH/dbf-filter?color=blue)](https://github.com/ValeriCHHH/dbf-filter/releases/latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-Универсальная кроссплатформенная утилита командной строки для поиска, фильтрации, сортировки и конвертации баз данных **DBF** 
+# Универсальная кроссплатформенная утилита командной строки для поиска, фильтрации, сортировки и конвертации баз данных **DBF** 
 ---
 ## 🚀 Возможности
 * 🔍 **Поиск и фильтрация:** поиск ключевых слов в указанной колонке таблицы (поддержка поиска нескольких фраз одновременно).
