@@ -1,67 +1,77 @@
 name: Build and Release
 
+# Запуск сборки при выкатывании нового тега (например, v1.0.0)
 on:
   push:
     tags:
       - 'v*'
 
 jobs:
+  # =======================================================
+  # 1. СБОРКА ПАКЕТОВ ДЛЯ LINUX (.deb и .rpm)
+  # =======================================================
   build-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Чтение исходного кода
         uses: actions/checkout@v4
+
       - name: Установка инструментов сборки (dpkg и rpm)
         run: |
           sudo apt-get update
-          sudo apt-get install -y dpkg-dev rpm
+          sudo apt-get install -y dpkg-dev rpm alien
+
       - name: Подготовка структуры для DEB пакета
         run: |
           mkdir -p build/deb/dbf-filter/DEBIAN
           mkdir -p build/deb/dbf-filter/usr/bin
 
+          # Копируем скрипт и делаем исполняемым
           cp src/dbf_to_csv.py build/deb/dbf-filter/usr/bin/dbf-filter
           chmod +x build/deb/dbf-filter/usr/bin/dbf-filter
 
+          # Получаем номер версии без буквы 'v'
           VERSION="${GITHUB_REF_NAME#v}"
 
+          # Записываем файл control
           echo "Package: dbf-filter" > build/deb/dbf-filter/DEBIAN/control
           echo "Version: ${VERSION}" >> build/deb/dbf-filter/DEBIAN/control
           echo "Section: utils" >> build/deb/dbf-filter/DEBIAN/control
           echo "Priority: optional" >> build/deb/dbf-filter/DEBIAN/control
           echo "Architecture: all" >> build/deb/dbf-filter/DEBIAN/control
           echo "Depends: python3, python3-dbfread" >> build/deb/dbf-filter/DEBIAN/control
-          echo "Maintainer: Valeriy Stepanchuk <valerik.shadowman@gmail.com>" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Maintainer: Stepanchuk Valeriy <valerik.shadowman@gmail.com>" >> build/deb/dbf-filter/DEBIAN/control
           echo "Description: Utility for filtering DBF files and converting to CSV" >> build/deb/dbf-filter/DEBIAN/control
 
+          # Сборка deb
+          dpkg-deb --build build/deb/dbf-filter dbf-filter_${VERSION}_all.deb
 
-    - name: Сборка .deb
-      run: |
-        dpkg-deb --build build/deb/dbf-filter dbf-filter_${GITHUB_REF_NAME#v}_all.deb
+      - name: Конвертация DEB в RPM
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sudo alien -r -k dbf-filter_${VERSION}_all.deb
 
-    - name: Подготовка структуры и сборка .rpm (через alien)
-      run: |
-        sudo apt-get install -y alien
-        sudo alien -r -k dbf-filter_${GITHUB_REF_NAME#v}_all.deb
+      - name: Загрузка готовых пакетов в артефакты
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            *.deb
+            *.rpm
 
-    - name: Загрузка готовых пакетов в артефакты
-      uses: actions/upload-artifact@v4
-      with:
-        name: linux-packages
-        path: |
-          *.deb
-          *.rpm
-
+  # =======================================================
+  # 2. СБОРКА ИСПОЛНЯЕМОГО ФАЙЛА ДЛЯ WINDOWS (.exe)
+  # =======================================================
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Чтение исходного кода
         uses: actions/checkout@v4
 
-      - name: Настройка python
+      - name: Настройка Python
         uses: actions/setup-python@v5
-        with: 
-        python-viersion: '3.11'
+        with:
+          python-version: '3.11'
 
       - name: Установка зависимостей
         run: |
@@ -78,13 +88,17 @@ jobs:
           name: windows-binary
           path: dist/dbf-filter.exe
 
-
+  # =======================================================
+  # 3. ПУБЛИКАЦИЯ ГОТОВЫХ ФАЙЛОВ В GITHUB RELEASES
+  # =======================================================
   create-release:
     needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Скачивание всех собранных артефактов
-        uses: actions/downloads-artifact@v4
+        uses: actions/download-artifact@v4
 
       - name: Публикация релиза на GitHub
         uses: softprops/action-gh-release@v2
