@@ -23,18 +23,17 @@ jobs:
           cp src/dbf_to_csv.py build/deb/dbf-filter/usr/bin/dbf-filter
           chmod +x build/deb/dbf-filter/usr/bin/dbf-filter
 
-          cat <<EOF > build/deb/dbf-filter/DEBIAN/control
-        Package: dbf-filter
-        Version: ${GITHUB_REF_NAME#v}
-        Section: utils
-        Priority: optional
-        Architecture: all
-        Depends: python3, python3-dbfread
-        Maintainer: Stepanchuk Valeriy Victorovich <valerik.shadowman@gmail.com>
-        Description: Utility for filtering DBF files and converting to CSV
-                     (ru) Консольная утилита (утилита командной стороки
-                     для фильтрации DBF файлов и конвертации их в CSV
-        EOF
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          echo "Package: dbf-filter" > build/deb/dbf-filter/DEBIAN/control
+          echo "Version: ${VERSION}" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Section: utils" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Priority: optional" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Architecture: all" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Depends: python3, python3-dbfread" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Maintainer: Valeriy Stepanchuk <valerik.shadowman@gmail.com>" >> build/deb/dbf-filter/DEBIAN/control
+          echo "Description: Utility for filtering DBF files and converting to CSV" >> build/deb/dbf-filter/DEBIAN/control
+
 
     - name: Сборка .deb
       run: |
