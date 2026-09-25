@@ -2,7 +2,8 @@
 [![Build and Release](https://github.com/ValeriCHHH/dbf-filter/actions/workflows/release.yml/badge.svg)](https://github.com/ValeriCHHH/dbf-filter/actions/workflows/release.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/ValeriCHHH/dbf-filter?color=blue)](https://github.com/ValeriCHHH/dbf-filter/releases/latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-Универсальная кроссплатформенная утилита командной строки для поиска, фильтрации, сортировки и конвертации баз данных **DBF** ---
+Универсальная кроссплатформенная утилита командной строки для поиска, фильтрации, сортировки и конвертации баз данных **DBF** 
+---
 ## 🚀 Возможности
 * 🔍 **Поиск и фильтрация:** поиск ключевых слов в указанной колонке таблицы (поддержка поиска нескольких фраз одновременно).
 * 🔀 **Сортировка:** сортировка итогового списка по любому выбранному полю.
@@ -13,7 +14,9 @@
 Скачать свежую версию под вашу операционную систему можно в разделе **[Releases / Релизы](https://github.com/ValeriCHHH/dbf-filter/releases/latest)**.
 ### Debian / Ubuntu / Linux Mint / Astra Linux
 Скачайте `.deb` файл и установите его:
-
+```bash
+sudo dpkg -i ./dbf-filter-1.0.0_all.deb
+```
 (dBase / FoxPro / Clipper) в формат **CSV** с поддержкой русских кодировок.
 BOM (без проблем открывается в Microsoft Excel и LibreOffice Calc).
 sudo apt install ./dbf-filter_1.0.0_all.deb 
