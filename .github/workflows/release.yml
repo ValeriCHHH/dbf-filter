@@ -1,0 +1,98 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Чтение исходного кода
+        uses: actions/checkout@v4
+      - name: Установка инструментов сборки (dpkg и rpm)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev rpm
+      - name: Подготовка структуры для DEB пакета
+        run: |
+          mkdir -p build/deb/dbf-filter/DEBIAN
+          mkdir -p build/deb/dbf-filter/usr/bin
+
+          cp src/dbf_to_csv.py build/deb/dbf-filter/usr/bin/dbf-filter
+          chmod +x build/deb/dbf-filter/usr/bin/dbf-filter
+
+          cat <<EOF > build/deb/dbf-filter/DEBIAN/control
+        Package: dbf-filter
+        Version: ${GITHUB_REF_NAME#v}
+        Section: utils
+        Priority: optional
+        Architecture: all
+        Depends: python3, python3-dbfread
+        Maintainer: Stepanchuk Valeriy Victorovich <valerik.shadowman@gmail.com>
+        Description: Utility for filtering DBF files and converting to CSV
+                     (ru) Консольная утилита (утилита командной стороки
+                     для фильтрации DBF файлов и конвертации их в CSV
+        EOF
+
+    - name: Сборка .deb
+      run: |
+        dpkg-deb --build build/deb/dbf-filter dbf-filter_${GITHUB_REF_NAME#v}_all.deb
+
+    - name: Подготовка структуры и сборка .rpm (через alien)
+      run: |
+        sudo apt-get install -y alien
+        sudo alien -r -k dbf-filter_${GITHUB_REF_NAME#v}_all.deb
+
+    - name: Загрузка готовых пакетов в артефакты
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-packages
+        path: |
+          *.deb
+          *.rpm
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Чтение исходного кода
+        uses: actions/checkout@v4
+
+      - name: Настройка python
+        uses: actions/setup-python@v5
+        with: 
+        python-viersion: '3.11'
+
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Сборка в автономный .exe с помощью PyInstaller
+        run: |
+          pyinstaller --onefile --name dbf-filter src/dbf_filter.py
+
+      - name: Загрузка .exe в артефакты
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binary
+          path: dist/dbf-filter.exe
+
+
+  create-release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Скачивание всех собранных артефактов
+        uses: actions/downloads-artifact@v4
+
+      - name: Публикация релиза на GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            linux-packages/*.deb
+            linux-packages/*.rpm
+            windows-binary/dbf-filter.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
