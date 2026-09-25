@@ -1,6 +1,5 @@
 name: Build and Release
 
-# Запуск сборки при выкатывании нового тега (например, v1.0.0)
 on:
   push:
     tags:
@@ -14,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Чтение исходного кода
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Установка инструментов сборки (dpkg и rpm)
         run: |
@@ -26,14 +25,12 @@ jobs:
           mkdir -p build/deb/dbf-filter/DEBIAN
           mkdir -p build/deb/dbf-filter/usr/bin
 
-          # Копируем скрипт и делаем исполняемым
+
           cp src/dbf_to_csv.py build/deb/dbf-filter/usr/bin/dbf-filter
           chmod +x build/deb/dbf-filter/usr/bin/dbf-filter
 
-          # Получаем номер версии без буквы 'v'
           VERSION="${GITHUB_REF_NAME#v}"
 
-          # Записываем файл control
           echo "Package: dbf-filter" > build/deb/dbf-filter/DEBIAN/control
           echo "Version: ${VERSION}" >> build/deb/dbf-filter/DEBIAN/control
           echo "Section: utils" >> build/deb/dbf-filter/DEBIAN/control
@@ -43,7 +40,6 @@ jobs:
           echo "Maintainer: Stepanchuk Valeriy <valerik.shadowman@gmail.com>" >> build/deb/dbf-filter/DEBIAN/control
           echo "Description: Utility for filtering DBF files and converting to CSV" >> build/deb/dbf-filter/DEBIAN/control
 
-          # Сборка deb
           dpkg-deb --build build/deb/dbf-filter dbf-filter_${VERSION}_all.deb
 
       - name: Конвертация DEB в RPM
@@ -52,7 +48,7 @@ jobs:
           sudo alien -r -k dbf-filter_${VERSION}_all.deb
 
       - name: Загрузка готовых пакетов в артефакты
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: linux-packages
           path: |
@@ -66,24 +62,24 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Чтение исходного кода
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Настройка Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
       - name: Установка зависимостей
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install setuptools pyinstaller dbfread
 
       - name: Сборка в автономный .exe с помощью PyInstaller
         run: |
           pyinstaller --onefile --name dbf-filter src/dbf_filter.py
 
       - name: Загрузка .exe в артефакты
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: windows-binary
           path: dist/dbf-filter.exe
@@ -98,7 +94,7 @@ jobs:
       contents: write
     steps:
       - name: Скачивание всех собранных артефактов
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
 
       - name: Публикация релиза на GitHub
         uses: softprops/action-gh-release@v2
